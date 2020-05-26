@@ -4,7 +4,7 @@ import ssl
 import requests
 import regex as re
 import os
-from datetime import date
+from datetime import date, timedelta
 import shutil
 
 today = date.today()
@@ -85,21 +85,23 @@ for ser_ind in indices:
 	print('Size of each paper is 5-12MB')
 	for_how_many_days = int(input('Enter your number - '))
 
-	# for i in range(for_how_many_days):
-	url = list_paper[1]
+	for i in range(for_how_many_days):
+		url = list_paper[i]
 
-	req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-	html = urllib.request.urlopen(req).read()
-	soup = BeautifulSoup(html, 'html.parser')
-	tags = soup('iframe')
-	link = tags[0].get('src',None)		
+		req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+		html = urllib.request.urlopen(req).read()
+		soup = BeautifulSoup(html, 'html.parser')
+		tags = soup('iframe')
+		link = tags[0].get('src',None)		
 
-	if is_downloadable(link):
-		print('Downloading '+serial_num[ser_ind]+'...')
-		r = requests.get(link, allow_redirects=True)
-		with open(serial_num[ser_ind]+"_"+str(today)+".pdf",'wb') as f:
-			f.write(r.content)
-		print('Done :)')
-	else:
-		print(serial_num[ser_ind] + ' paper not available for '+ str(today))
+		date_that_day = today - timedelta(days=i)
+
+		if is_downloadable(link):
+			print('Downloading '+serial_num[ser_ind]+'...')
+			r = requests.get(link, allow_redirects=True)
+			with open(serial_num[ser_ind]+"_"+str(date_that_day)+".pdf",'wb') as f:
+				f.write(r.content)
+			print('Done :)')
+		else:
+			print(serial_num[ser_ind] + ' paper not available for '+ str(date_that_day))
 	os.chdir('../')
